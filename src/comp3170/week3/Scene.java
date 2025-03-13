@@ -20,27 +20,23 @@ import comp3170.ShaderLibrary;
 
 public class Scene {
 
-	final private String VERTEX_SHADER = "vertex.glsl";
-	final private String FRAGMENT_SHADER = "fragment.glsl";
+    private final int vertexBuffer;
+	private final int[] indices;
+	private final int indexBuffer;
+    private final int colourBuffer;
+	private final Matrix4f translationMatrix = new Matrix4f();
+	private final Matrix4f rotationMatrix = new Matrix4f();
+	private final Matrix4f scaleMatrix = new Matrix4f();
+    private final Matrix4f matrixModel;
+	private static final float MOVEMENT_SPEED = 5f;
 
-	private Vector4f[] vertices;
-	private int vertexBuffer;
-	private int[] indices;
-	private int indexBuffer;
-	private Vector3f[] colours;
-	private int colourBuffer;
-	private Matrix4f translationMatrix = new Matrix4f();
-	private Matrix4f rotationMatrix = new Matrix4f();
-	private Matrix4f scaleMatrix = new Matrix4f();
-	private Matrix4f matrixModel;
-	private static final float MOVEMENT_SPEED = 0.1f;
-	private float movementAmount = 0f;
-
-	private final Shader shader;
+    private final Shader shader;
 
 	public Scene() {
 
-		shader = ShaderLibrary.instance.compileShader(VERTEX_SHADER, FRAGMENT_SHADER);
+        String VERTEX_SHADER = "vertex.glsl";
+        String FRAGMENT_SHADER = "fragment.glsl";
+        shader = ShaderLibrary.instance.compileShader(VERTEX_SHADER, FRAGMENT_SHADER);
 
 		// @formatter:off
 			//          (0,1)
@@ -55,7 +51,7 @@ public class Scene {
 			//(-1,-1)           (1,-1)
 			//
 	 		
-		vertices = new Vector4f[] {
+		Vector4f[] vertices = new Vector4f[] {
 			new Vector4f( 0, 0, 0, 1),
 			new Vector4f( 0, 1, 0, 1),
 			new Vector4f(-1,-1, 0, 1),
@@ -66,7 +62,11 @@ public class Scene {
 		vertexBuffer = GLBuffers.createBuffer(vertices);
 
 		// @formatter:off
-		colours = new Vector3f[] {
+		// MAGENTA
+		// MAGENTA
+		// RED
+		// BLUE
+		Vector3f[] colours = new Vector3f[] {
 			new Vector3f(1,0,1),	// MAGENTA
 			new Vector3f(1,0,1),	// MAGENTA
 			new Vector3f(1,0,0),	// RED
@@ -106,11 +106,10 @@ public class Scene {
 //		rotationMatrix(TAU/8, matrixModel);
 //		scaleMatrix(0.25f, 0.25f, matrixModel);
 
-//		translationMatrix(0f, 0.5f, matrixModel);
-		rotationMatrix(TAU/4, rotationMatrix);
-		scaleMatrix(0.2f, 0.2f, scaleMatrix);
+		translationMatrix(0.5f, 0f, translationMatrix);
+        scaleMatrix(0.1f, 0.1f, scaleMatrix);
 
-		matrixModel.mul(rotationMatrix).mul(scaleMatrix);
+		matrixModel.mul(translationMatrix).mul(scaleMatrix);
     }
 
 	public void draw() {
@@ -131,13 +130,11 @@ public class Scene {
 	}
 
 	public void update(float delta) {
-		movementAmount += TAU/2 * MOVEMENT_SPEED * delta;
+		float speed = TAU/4 * delta;
 
-		translationMatrix(0f, 1f, translationMatrix);
-		rotationMatrix(TAU/120, rotationMatrix);
+		translationMatrix(0f, speed*MOVEMENT_SPEED, translationMatrix);
+		rotationMatrix(speed, rotationMatrix);
 		matrixModel.mul(translationMatrix).mul(rotationMatrix);
-
-
 	}
 
 	/**
