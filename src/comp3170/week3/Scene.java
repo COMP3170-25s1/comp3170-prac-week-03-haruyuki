@@ -1,5 +1,6 @@
 package comp3170.week3;
 
+import static comp3170.Math.TAU;
 import static org.lwjgl.opengl.GL11.GL_FILL;
 import static org.lwjgl.opengl.GL11.GL_FRONT_AND_BACK;
 import static org.lwjgl.opengl.GL11.GL_TRIANGLES;
@@ -28,8 +29,14 @@ public class Scene {
 	private int indexBuffer;
 	private Vector3f[] colours;
 	private int colourBuffer;
+	private Matrix4f translationMatrix = new Matrix4f();
+	private Matrix4f rotationMatrix = new Matrix4f();
+	private Matrix4f scaleMatrix = new Matrix4f();
+	private Matrix4f matrixModel;
+	private static final float MOVEMENT_SPEED = 0.1f;
+	private float movementAmount = 0f;
 
-	private Shader shader;
+	private final Shader shader;
 
 	public Scene() {
 
@@ -78,7 +85,33 @@ public class Scene {
 
 		indexBuffer = GLBuffers.createIndexBuffer(indices);
 
-	}
+		matrixModel = new Matrix4f();
+
+		// A
+//		scaleMatrix(-1f, 1f, matrixModel);
+
+		// B
+//		rotationMatrix(TAU/4*3, matrixModel);
+
+		// C
+//		translationMatrix(.5f, -.5f, matrixModel);
+//		scaleMatrix(.5f, .5f, matrixModel);
+
+		// D
+//		translationMatrix(-0.5f, 0.5f, matrixModel);
+//		rotationMatrix(TAU/12, matrixModel);
+//		scaleMatrix(0.5f, 0.5f, matrixModel);
+
+//		translationMatrix(0f, 0.5f, matrixModel);
+//		rotationMatrix(TAU/8, matrixModel);
+//		scaleMatrix(0.25f, 0.25f, matrixModel);
+
+//		translationMatrix(0f, 0.5f, matrixModel);
+		rotationMatrix(TAU/4, rotationMatrix);
+		scaleMatrix(0.2f, 0.2f, scaleMatrix);
+
+		matrixModel.mul(rotationMatrix).mul(scaleMatrix);
+    }
 
 	public void draw() {
 		
@@ -87,11 +120,23 @@ public class Scene {
 		shader.setAttribute("a_position", vertexBuffer);
 		shader.setAttribute("a_colour", colourBuffer);
 
+		shader.setUniform("u_matrix", matrixModel);
+
 		// draw using index buffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 		
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0);
+
+	}
+
+	public void update(float delta) {
+		movementAmount += TAU/2 * MOVEMENT_SPEED * delta;
+
+		translationMatrix(0f, 1f, translationMatrix);
+		rotationMatrix(TAU/120, rotationMatrix);
+		matrixModel.mul(translationMatrix).mul(rotationMatrix);
+
 
 	}
 
@@ -134,7 +179,12 @@ public class Scene {
 
 	public static Matrix4f rotationMatrix(float angle, Matrix4f dest) {
 
-		// TODO: Your code here
+		dest.identity();
+
+		dest.m00((float) Math.cos(angle));
+		dest.m01((float) Math.sin(angle));
+		dest.m10((float) -Math.sin(angle));
+		dest.m11((float) Math.cos(angle));
 
 		return dest;
 	}
@@ -151,7 +201,10 @@ public class Scene {
 
 	public static Matrix4f scaleMatrix(float sx, float sy, Matrix4f dest) {
 
-		// TODO: Your code here
+		dest.identity();
+
+		dest.m00(sx);
+		dest.m11(sy);
 
 		return dest;
 	}

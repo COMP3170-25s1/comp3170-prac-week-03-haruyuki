@@ -14,19 +14,19 @@ import comp3170.Window;
 
 public class Week3 implements IWindowListener {
 
-	private Window window;
-	private Shader shader;
+    private Shader shader;
 	
 	final private File DIRECTORY = new File("src/comp3170/week3"); 
 	
 	private int width = 800;
 	private int height = 800;
 	private Scene scene;
+	private long oldTime;
 	
 	public Week3() throws OpenGLException  {
-		
+
 		// create window with title, size, and a listener (this)
-		window = new Window("Week 3 prac", width, height, this);
+        Window window = new Window("Week 3 prac", width, height, this);
 		
 		// sets the window as resizable
 		window.setResizable(true);
@@ -43,18 +43,29 @@ public class Week3 implements IWindowListener {
 		
 		// create the scene
 		scene = new Scene();
-		
+
+		oldTime = System.currentTimeMillis();
 	}
 
 
 	@Override
 	public void draw() {
+		update();
 
         // clear the colour buffer
 		glClear(GL_COLOR_BUFFER_BIT);	
 		
 		scene.draw();
 	    
+	}
+
+	public void update() {
+		long time = System.currentTimeMillis();
+		float delta = (time - oldTime) / 1000f;
+		oldTime = time;
+
+		scene.update(delta);
+
 	}
 
 	@Override
